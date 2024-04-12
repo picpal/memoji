@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* Chrome, Edge, Safari */
+.cm-scroller::-webkit-scrollbar {
+  display: none;
+  /* 스크롤바 자체를 보이지 않게 설정 */
+}
+
+/* Firefox */
+.cm-scroller {
+  scrollbar-width: none;
+  /* Firefox에서 스크롤바를 숨김 */
+}
+
+/* IE, Edge (구버전) */
+.cm-scroller {
+  -ms-overflow-style: none;
+  /* IE와 구버전 Edge에서 스크롤바를 숨김 */
+}
