@@ -19,31 +19,30 @@ const MarkdownEditor = ({ docId }) => {
   useEffect(() => {
     if(!editorDiv.current) return;
 
+    const updatePreview = (doc) => {
+      setPreview(marked(doc.toString()));
+    };
+
     const startState = EditorState.create({
       doc: docContent,
       extensions: [
         markdown(),
         syntaxHighlighting(customHighlightStyle),
         EditorView.lineWrapping,
+        EditorView.updateListener.of((update) => {
+          if (update.docChanged) {
+            updatePreview(update.state.doc);
+          }
+        }),
         editorTheme
       ],
     });
-
+    
     const view = new EditorView({
       state: startState,
       parent: editorDiv.current,
     });
-
-    const updatePreview = (doc) => {
-      setPreview(marked(doc.toString()));
-    };
-
-    view.updateListener.of(update => {
-      if (update.docChanged) {
-        updatePreview(update.state.doc);
-      }
-    });
-
+    
     return () => {
       view.destroy();
     };
