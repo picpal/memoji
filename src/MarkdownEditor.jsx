@@ -2,75 +2,61 @@ import React, { useEffect, useRef, useState } from 'react';
 import { EditorState } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
 import { markdown } from '@codemirror/lang-markdown';
-import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
-import { tags } from '@lezer/highlight';
-import { marked } from 'marked';
+import { syntaxHighlighting } from '@codemirror/language';
+import { editorTheme, customHighlightStyle } from './EditorStyles';
+import { setupMarked } from './SetupMarked';
+import { useFetchDocument } from './hooks/useFetchDocument';
+import 'highlight.js/styles/github-dark.css';
 
 
-const MarkdownEditor = () => {
+const MarkdownEditor = ({ docId }) => {
   const editorDiv = useRef(null);
+  const previewDiv = useRef(null);
+  const { docContent, isLoading, error } = useFetchDocument(docId);
   const [preview, setPreview] = useState('');
+  const marked = setupMarked();
 
   useEffect(() => {
-    marked.setOptions({
-      breaks: true, // 줄바꿈 인식
-    })
+    if(!editorDiv.current) return;
 
+    const startState = EditorState.create({
+      doc: docContent,
+      extensions: [
+        markdown(),
+        syntaxHighlighting(customHighlightStyle),
+        EditorView.lineWrapping,
+        editorTheme
+      ],
+    });
 
-    if (editorDiv.current) {
-      const myHighlightStyle = HighlightStyle.define([
-        { tag: tags.heading1, fontSize: '1.8em', fontWeight: 'bold' },
-        { tag: tags.heading2, fontSize: '1.6em', fontWeight: 'bold' },
-        { tag: tags.heading3, fontSize: '1.4em', fontWeight: 'bold' },
-      ]);
+    const view = new EditorView({
+      state: startState,
+      parent: editorDiv.current,
+    });
 
-      const updatePreview = (doc) => {
-        setPreview(marked(doc.toString()));
-      };
+    const updatePreview = (doc) => {
+      setPreview(marked(doc.toString()));
+    };
 
-      const editorTheme = EditorView.theme({
-        '&': {
-          height: '100%', // 에디터의 높이 설정
-          overflow: 'auto', // 내용이 높이를 초과할 경우 스크롤바 표시
-          padding: '12px' // 내부 여백
-        },
-        '&.cm-focused': {
-          borderColor: '#f22' // 포커스가 있을 때 테두리 색상
-        },
-        '.cm-scroller': { // 스크롤영역
-        }
-      });
+    view.updateListener.of(update => {
+      if (update.docChanged) {
+        updatePreview(update.state.doc);
+      }
+    });
 
-      const startState = EditorState.create({
-        doc: '',
-        extensions: [
-          markdown(),
-          syntaxHighlighting(myHighlightStyle),
-          EditorView.lineWrapping,
-          EditorView.updateListener.of((update) => {
-            if (update.docChanged) {
-              updatePreview(update.state.doc);
-            }
-          }),
-          editorTheme
-        ],
-      });
+    return () => {
+      view.destroy();
+    };
+  }, [docContent]);
 
-      const view = new EditorView({
-        state: startState,
-        parent: editorDiv.current,
-      });
-
-      return () => {
-        view.destroy();
-      };
-    }
-  }, []);
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error loading document: {error.message}</p>;
 
   return (
     <div className="flex gap-3">
+      <div className="h-screen border border-blue-500 w-44"></div>
       <div ref={editorDiv} className="h-screen border border-blue-500 flex-1"></div>
-      <div className="h-screen border border-blue-500 flex-1 p-4 overflow-y-auto" dangerouslySetInnerHTML={{ __html: preview }}></div>
+      <div className="viewer h-screen border border-blue-500 flex-1 p-4 overflow-y-auto" dangerouslySetInnerHTML={{ __html: preview }} ref={previewDiv}></div>
     </div>
   );
 };
