@@ -105,6 +105,11 @@ h1 {
   color: blueviolet;
 }
 
+.viewer {
+  white-space: pre-wrap;
+  /* 또는 `pre` 사용 */
+}
+
 /* Chrome, Edge, Safari */
 .cm-scroller::-webkit-scrollbar {
   display: none;

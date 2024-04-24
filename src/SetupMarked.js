@@ -13,6 +13,8 @@ export const setupMarked = () => {
   marked.setOptions({
     renderer,
     breaks: true,
+    smartLists: true,
+    smartypants: false,
     gfm: true,
     tables: true,
   });
