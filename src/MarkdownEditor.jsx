@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {basicSetup} from "codemirror"
 import { EditorState } from '@codemirror/state';
 import { EditorView , keymap} from '@codemirror/view';
 import { markdown } from '@codemirror/lang-markdown';
 import { syntaxHighlighting } from '@codemirror/language';
-import { defaultKeymap , indentWithTab  } from "@codemirror/commands";
+import { indentWithTab  } from "@codemirror/commands";
 import { editorTheme, customHighlightStyle } from './EditorStyles';
 import { setupMarked } from './SetupMarked';
 import { useFetchDocument } from './hooks/useFetchDocument';
@@ -50,7 +49,6 @@ const MarkdownEditor = ({ docId }) => {
     a.click();
     a.remove();
   }
-
 
   useEffect(() => {
     if(!editorDiv.current) return;
