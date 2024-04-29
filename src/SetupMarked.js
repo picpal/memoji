@@ -8,8 +8,7 @@ export const setupMarked = () => {
   const renderer = new marked.Renderer();
   renderer.code = (code, language) => {
     if (language === "mermaid") {
-      const id = "mermaid" + Date.now(); //needs a unique element id
-      return mermaid.mermaidAPI.render(id, code);
+      return `<div class="mermaid">${code}</div>`;
     } else {
       // 기존 하이라이트.js를 사용한 코드 하이라이트 처리
       const validLang = hljs.getLanguage(language) ? language : "plaintext";
