@@ -3,7 +3,7 @@ import { EditorState } from '@codemirror/state';
 import { EditorView , keymap} from '@codemirror/view';
 import { markdown } from '@codemirror/lang-markdown';
 import { syntaxHighlighting } from '@codemirror/language';
-import { indentWithTab  } from "@codemirror/commands";
+import { indentWithTab,history, undo, redo  } from "@codemirror/commands";
 import { editorTheme, customHighlightStyle } from './EditorStyles';
 import { setupMarked } from './SetupMarked';
 import { useFetchDocument } from './hooks/useFetchDocument';
@@ -77,7 +77,12 @@ const MarkdownEditor = ({ docId }) => {
     const startState = EditorState.create({
       doc: docContent,
       extensions: [
-        keymap.of([indentWithTab]),
+        history(),
+        keymap.of([
+          indentWithTab, 
+          { key: 'Mod-z', run: undo },  // 'Mod'는 Ctrl 또는 Cmd 키를 자동으로 매핑
+          { key: 'Mod-y', run: redo, mac: 'Mod-Shift-z' }  // Mac에서는 'Cmd-Shift-Z'를 사용
+        ]),
         markdown(),
         syntaxHighlighting(customHighlightStyle),
         EditorView.lineWrapping,
